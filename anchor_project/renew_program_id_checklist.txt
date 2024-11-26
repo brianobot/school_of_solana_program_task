@@ -1,0 +1,12 @@
+- Ensure you are currently working on the correct net (localnet, devnet or maintest)
+- Delete the test-ledger directory in the root 
+- Delete the test-ledger directory in the .anchor directory
+- Delete the *.json file in the target/deploy directory
+- Delete the *.so file in the target/deploy directory
+- Recreate the id.json with `solana-keygen new -o id.json --force`
+- Run `anchor build`
+- Run `anchor keys sync`
+- Run `anchor deploy`
+
+
+8jymHin7NDtAx6ZRbwgR6Nq5AvNEu3PVmb8ofN5z7Cii
