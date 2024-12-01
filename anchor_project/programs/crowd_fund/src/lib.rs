@@ -15,12 +15,12 @@ mod crowd_fund {
     pub fn create_campaign(ctx: Context<CreateCampaign>, name: String, description: String, target_amount: u64) -> Result<()> {
         require!(
             name.as_bytes().len() <= MAX_CAMPAIGN_NAME,
-            MyError::CampaignNameTooLong
+            CrowdFundError::CampaignNameTooLong
         );
         
         require!(
             description.as_bytes().len() <= MAX_CAMPAIGN_DESCR,
-            MyError::CampaignDescrTooLong
+            CrowdFundError::CampaignDescrTooLong
         );
 
         ctx.accounts.campaign_pda.set_inner(Campaign { 
@@ -36,7 +36,7 @@ mod crowd_fund {
     }
 
     pub fn donate_to_campaign(ctx: Context<DonateToCampaign>, amount: u64) -> Result<()> {
-        require!(amount > 0, MyError::InvalidAmount);
+        require!(amount > 0, CrowdFundError::InvalidAmount);
 
         // move the amount from the signer wallet to the campaign_pda
         msg!("About to Donate {:?} to {:?}", amount, ctx.accounts.campaign_pda);
@@ -66,12 +66,12 @@ mod crowd_fund {
     }
 
     pub fn withdraw_from_campaign(ctx: Context<WithdrawFromCampaign>, amount: u64) -> Result<()> {
-        require!(amount > 0, MyError::InvalidAmount);
+        require!(amount > 0, CrowdFundError::InvalidAmount);
 
         let campaign_lamports = ctx.accounts.campaign_pda.get_lamports();
         require!(
             campaign_lamports > amount * LAMPORT_PER_SOL,
-            MyError::InsufficientCampaignBalance
+            CrowdFundError::InsufficientCampaignBalance
         );
 
         msg!("About to Withdraw {} from Campaign", amount);
@@ -111,14 +111,8 @@ pub struct CreateCampaign<'info> {
 
 #[derive(Accounts)]
 pub struct DonateToCampaign<'info> {
-    #[account(
-        mut,
-        seeds = [b"campaign", update_authority.key().as_ref()],
-        bump
-    )]
+    #[account(mut)]
     pub campaign_pda: Account<'info, Campaign>,
-    /// CHECK: this is need to validate that the pda is correct
-    pub update_authority: AccountInfo<'info>,
     #[account(mut)]
     pub signer: Signer<'info>, // donor
     pub system_program: Program<'info, System>,
@@ -170,12 +164,12 @@ pub struct Campaign {
 
 
 #[error_code]
-pub enum MyError {
+pub enum CrowdFundError {
     #[msg("Campaign name may only hold characters below 50 of Length")]
     CampaignNameTooLong,
-    #[msg("Campaign description may only hold characters below 50 of Length")]
+    #[msg("Campaign description may only hold characters below 250 of Length")]
     CampaignDescrTooLong,
-    #[msg("Donation Amount must be greater than zero")]
+    #[msg("Amount must be greater than zero")]
     InvalidAmount,
     #[msg("User already has an active campaign.")]
     CampaignAlreadyExists,

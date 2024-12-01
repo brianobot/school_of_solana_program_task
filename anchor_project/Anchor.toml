@@ -14,7 +14,7 @@ crowd_fund = "3Por2Tkg1cv11vBYz58Kxq56H6RAuAX6HJznscZrp2ih"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Devnet"
+cluster = "Localnet"
 wallet = "./id.json"
 
 [scripts]

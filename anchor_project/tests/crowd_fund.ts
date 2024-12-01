@@ -3,6 +3,7 @@ import { Program } from "@coral-xyz/anchor";
 import { BN } from "@coral-xyz/anchor";
 import { CrowdFund } from "../target/types/crowd_fund";
 import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { assert } from "chai";
 
 const { SystemProgram } = anchor.web3;
 const CAMPAIGN_SEED = "campaign";
@@ -41,13 +42,70 @@ describe("crowd_fund", () => {
   
   });
   
+  it("Is Campaign Creation Failed Due to Long Campaign Name!", async () => {
+    const updateAuthority2 = anchor.web3.Keypair.generate();
+    const [campaignPDA2, bump2] = generateCampaignPDA(updateAuthority2.publicKey);
+
+    await airdrop(program.provider.connection, updateAuthority2.publicKey, 100);
+
+    try {
+      const tx = await program.methods.createCampaign(
+        "Very very very long and elaborate campaign name that exceeds the expectation of the instruction", 
+        "Test Description", 
+        new BN(0.005))
+        .accounts({
+          campaignPda: campaignPDA2,
+          updateAuthority: updateAuthority2.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([updateAuthority2])
+        .rpc();
+
+      assert(false, "This should never be reached");
+
+    } catch (error) {
+      const errorMessage = error.error.errorMessage;
+      assert(errorMessage == "Campaign name may only hold characters below 50 of Length", "Incorrect Error Message");
+    }
+  
+  });
+  
+  it("Is Campaign Creation Failed Due to Long Campaign Description!", async () => {
+    const updateAuthority3 = anchor.web3.Keypair.generate();
+    const [campaignPDA3, bump3] = generateCampaignPDA(updateAuthority3.publicKey);
+
+    await airdrop(program.provider.connection, updateAuthority3.publicKey, 100);
+
+    try {
+      const tx = await program.methods.createCampaign(
+        "Test Campaign", 
+        "Very very very long and elaborate campaign name that exceeds the expectation of the instructio" +
+        "Very very very long and elaborate campaign name that exceeds the expectation of the instruction" +
+        "Very very very long and elaborate campaign name that exceeds the expectation of the instruction", 
+        new BN(0.005))
+        .accounts({
+          campaignPda: campaignPDA3,
+          updateAuthority: updateAuthority3.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([updateAuthority3])
+        .rpc();
+
+      assert(false, "This should never be reached");
+
+    } catch (error) {
+      const errorMessage = error.error.errorMessage;
+      assert(errorMessage == "Campaign description may only hold characters below 250 of Length", "Incorrect Error Message");
+    }
+  
+  });
+  
   it("Is Donated to Campaign!", async () => {
     await airdrop(program.provider.connection, randomUser.publicKey, 100);
     
     const tx = await program.methods.donateToCampaign(new BN(10))
       .accounts({
         campaignPda: campaignPDA,
-        updateAuthority: updateAuthority.publicKey,
         signer: randomUser.publicKey,
         system_program: SystemProgram.programId,
       })
@@ -55,6 +113,28 @@ describe("crowd_fund", () => {
       .rpc();
 
     console.log("Your transaction signature", tx);
+    
+  });
+  
+  it("Is Donated to Campaign Fails for 0 Donation amount!", async () => {
+    await airdrop(program.provider.connection, randomUser.publicKey, 100);
+    
+    try {
+      const tx = await program.methods.donateToCampaign(new BN(0))
+        .accounts({
+          campaignPda: campaignPDA,
+          signer: randomUser.publicKey,
+          system_program: SystemProgram.programId,
+        })
+        .signers([randomUser])
+        .rpc();
+
+      assert(false, "This should never be reached");
+
+    } catch(error) {
+      const errorMessage = error.error.errorMessage;
+      assert(errorMessage == "Amount must be greater than zero", "Incorrect Error Message");
+    } 
     
   });
 
@@ -71,6 +151,26 @@ describe("crowd_fund", () => {
 
     console.log("Your transaction signature", tx);
 
+  });
+  
+  it("Is Withdrawn from Campaign fails for 0 as Amount!", async () => {
+    
+    try {
+        const tx = await program.methods.withdrawFromCampaign(new BN(0))
+        .accounts({
+          campaignPda: campaignPDA,
+          updateAuthority: updateAuthority.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([updateAuthority])
+        .rpc();
+
+      assert(false, "This should never be reached");
+
+    } catch(error) {
+      const errorMessage = error.error.errorMessage;
+      assert(errorMessage == "Amount must be greater than zero", "Incorrect Error Message");
+    }
   });
 
   it("Is Campaign Closed!", async () => {
