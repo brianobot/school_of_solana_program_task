@@ -98,4 +98,4 @@ Both the Anchor program and the frontend have been successfully deployed. You ca
     npm start
     ```
 
-4. Open the app in your browser at http://localhost:3000 to interact with the app.
+4. Open the app in your browser at http://localhost:3000/basics to interact with the app.
