@@ -2,7 +2,7 @@
 
 ## Project Description
 
-This project is a decentralized crowdfunding application built on the Solana blockchain. It allows users to create fundraising campaigns, donate to existing campaigns, and withdraw or close campaigns they have created. The app leverages the power of Solana's fast, low-cost transactions to facilitate seamless interactions between users, making it easy to raise funds and support causes.
+This project is a decentralized crowdfunding application built on the Solana blockchain. It allows users to create fundraising campaigns, donate to existing campaigns, and withdraw or close campaigns they have created. The app leverages the power of Solana's fast, low-cost transactions to facilitate seamless interactions between users, making it easy to raise funds and support causes. Since this applicatino is built on the blockchain, it is open to all for use and there is no censorship and central control on data.
 
 ### Key Features:
 - **Create Campaigns**: Users can create their own campaigns with a fundraising goal and deadline.
@@ -14,7 +14,7 @@ This project is a decentralized crowdfunding application built on the Solana blo
 ### Frontend and Program Deployment
 
 Both the Anchor program and the frontend have been successfully deployed. You can view the app at the following link:  
-[Solana Crowdfunding App](https://your-app-link.com)
+[Solana Crowdfunding App](https://crowd-fund-frontend.vercel.app/basics)
 
 ## Build and Test the Anchor Program Locally
 
